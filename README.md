@@ -6,16 +6,16 @@ This project focuses on setting up a secure Express application that incorporate
 - In your terminal make sure you `cd` into the directory that you want your project to go.
     - Make a new directory for your project:
         ```bash
-        mkdir express-mongodb-auth
+        mkdir express-session-rbac
     - Go into that directory:
         ```bash
-        cd express-mongodb-auth
+        cd express-session-rbac
     - Initialize `Node.js`:
         ```bash
         npm init -y
     - Install dependencies for the project:
         ```bash
-        npm install express mongoose dotenv 
+        npm install express mongoose dotenv jsonwebtoken bcrypt
     - Open your new project in VSCode:
         ```bash
         code .
