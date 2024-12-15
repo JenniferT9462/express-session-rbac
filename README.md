@@ -2,7 +2,76 @@
 ## Overview
 This project focuses on setting up a secure Express application that incorporates key authentication and authorization functionalities with an emphasis on Role-Based Access Control (RBAC).
 ## Setup
+### Project setup:
+- In your terminal make sure you `cd` into the directory that you want your project to go.
+    - Make a new directory for your project:
+        ```bash
+        mkdir express-mongodb-auth
+    - Go into that directory:
+        ```bash
+        cd express-mongodb-auth
+    - Initialize `Node.js`:
+        ```bash
+        npm init -y
+    - Install dependencies for the project:
+        ```bash
+        npm install express mongoose dotenv 
+    - Open your new project in VSCode:
+        ```bash
+        code .
+### Create the Server:
+- Create a file named `index.js`.
+    - Copy this server code into `index.js`:
+        ```js
+        // index.js
+        const express = require('express');
+        const mongoose = require('mongoose');
+        const app = express();
+        const port = 3000;
 
+        // Middleware to parse JSON bodies
+        app.use(express.json());
+
+        // Connect to MongoDB
+        mongoose
+        .connect('your-mongodb-connection-string-here', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        })
+        .then(() => {
+            console.log('Connected to MongoDB');
+        })
+        .catch((error) => {
+            console.error('Error connecting to MongoDB:', error);
+        });
+
+        app.get('/', (req, res) => {
+            res.send('Hello, World!');
+        });
+
+        app.listen(port, () => {
+            console.log(`Server is running at http://localhost:${port}`);
+        });
+
+
+- In order to keep our `connection string` secure, we will need to store it in a `.env` file. 
+    - Create a file named `.env`.
+    - Define a variable for your `connection string`. NOTE: Your variable should be in all caps and no spaces between the variable and `=` or after.
+        Example: `ATLAS_URL=mongodb+srv://<username>:<password>@cluster0.x3zgp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+    - In order for us to use the environment variable in our server, we will need to import an configure dotenv:
+        ```js
+        require('dotenv').config()
+    - We can add a console.log to confirm it is working, but remove after confirming:
+        ```js
+        console.log(process.env)
+    - To use the environment variable in the server code, you can store it in a new variable to use it where you originally put your `connection string`:
+        ```js
+        const atlasUrl = process.env.ATLAS_URL
+    - Replace your `'your-mongodb-connection-string-here'` with the new variable. 
+- Test the Connection:
+    - Start the server by running `node index.js`
+    - In the terminal it should log `Connected to MongoDB`.
+    - Navigate to `localhost/3000` in your browser to confirm that the page displays `Hello World!`. 
 
 ## User Schema and Password Hashing
 - Define a user schema with the following fields: `name`, `email`, `password`, and `role`.
@@ -305,12 +374,115 @@ This project focuses on setting up a secure Express application that incorporate
     * Screenshot:
     ![login a user](</img/loginUserPostman.png>)
 
+### Authentication
+- Access Protected Route:
+    * Method: GET
+    * Endpoint: http://localhost:3000/dashboard
+    * Header: Authorization: Bearer <your_jwt_token>
+    * Response:
+        ```json
+        {
+        "message": "This is the dashboard."
+        }
+    * Screenshot:
+    ![dashboard](</img/dashboardPostman.png>)
 ### Role-Based Access Control
-
+- Register an Admin User:
+    * Method: POST
+    * Endpoint: http://localhost:3000/register
+    * Response: 
+        ```json
+        {
+            "name": "Admin User",
+            "email": "AnnaRose@gmail.com",
+            "password": "$2a$10$KL6Ro8/.MX7oSRskswfcjODd8uPluGZgGkB5jVXtZQyoIp7KEJ3gK",
+            "role": "admin",
+            "_id": "675dd467671344efbf206270",
+            "__v": 0
+        }
+    * Screenshot:
+    ![admin register](</img/adminPostman.png>)
+- Register a Regular User:
+    * Method: POST
+    * Endpoint: http://localhost:3000/register
+    * Response:
+        ```json
+        {
+            "name": "Regular User",
+            "email": "user@example.com",
+            "password": "$2a$10$4n3WYMceqQZ6FsyyWTopROuxx.m.Ax.BYfDyqCPGtx1P.J8oe0",
+            "role": "user",
+            "_id": "675ccd549708fcef93f3681c",
+            "__v": "0",
+        }
+    * Screenshot:
+    ![reg user](</img/regUserPostman.png>)
+- Login as Admin User:
+    * Method: POST
+    * Endpoint:  http://localhost:3000/login
+    * Response:
+        ```json
+        {
+            "message": "Login successful",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWRkNDY3NjcxMzQ0ZWZiZjIwNjI3MCIsImVtYWlsIjoiQW5uYVJvc2VAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzM0MjAyNTQ5LCJleHAiOjE3MzQ4MDczNDl9.ZWOy6Y_gs2jIRY31OVWHqNO-hlAUtzfjhWSLxJCFzE4"
+        }
+    * Screenshot:
+    ![admin login](</img/adminLoginPostman.png>)
+- Access Admin Route as Admin User:
+    * Method: GET
+    * Endpoint: http://localhost:3000/admin
+    * Header: Authorization: Bearer <your_jwt_token>
+    * Response:
+        ```json
+        {
+            "message": "This is the admin panel."
+        }
+    * Screenshot:
+    ![access admin as admin user](</img/accessAdminAdminPostman.png>)
+- Access Admin Route as Regular User:
+    * Method: GET
+    * Endpoint: http://localhost:3000/admin
+    * Header: Authorization: Bearer <your_jwt_token>
+    * Response: 
+        ```json
+        {
+            "message": "Access Forbidden: Insufficient permissions."
+        }
+    * Screenshot:
+    ![admin route as reg user](</img/adminRegUserPostman.png>)
 
 ## Initialize a Git Repository
+- In your bash terminal, add a `.gitignore`:
+    ```bash
+    touch .gitignore
+- Include `node_modules` and `.env`:
+    ```bash
+    echo "node_modules/" >> .gitignore
+    echo ".env" >> .gitignore
+- Create a new repository on Github, without a README.md or .gitignore.
+- Back in bash initialize a empty repo:
+    ```bash
+    git init
+- Add files to be staged for commit:
+    ```bash
+    git add .
+- Initial commit:
+    ```bash
+    git commit -m "initial commit"
+- Add a main branch:
+    ```bash
+    git branch -M main
+- Add your new repository:
+    ```bash
+    git remote add origin https://github.com/username/reponame.git
+- Push to Github
+    ```bash
+    git push -u origin main
 ## Challenges
-I didn't include 'auth' middleware in my admin route and that is why it wasn't working. My error said that couldn't read "user.role" from my role middleware. That was because I didn't included the auth before my role middleware. So it didn't have the role info on my admin route. And didn't have that data to compare with. So it crashed
+Figuring out the `secret key` in the JWT sign method was challenging because I didn't know that the secret key can be anything as long as it is very secure and strong. 
+
+I didn't include `auth` middleware in my admin route and that is why it wasn't working. My error said that couldn't read "user.role" from my role middleware. That was because I didn't included the auth before my role middleware. So it didn't have the role info on my admin route. And didn't have that data to compare with. So it crashed. When I added `auth` in the `admin` route it worked again.
+
 ## Conclusion
 This project equips developers with essential skills to build scalable and secure web applications using Express, with a focus on enhancing user management and resource protection through RBAC.
 ## Acknowledgements
