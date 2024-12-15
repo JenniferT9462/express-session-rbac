@@ -15,7 +15,7 @@ This project focuses on setting up a secure Express application that incorporate
         npm init -y
     - Install dependencies for the project:
         ```bash
-        npm install express mongoose dotenv jsonwebtoken bcrypt
+        npm install express mongoose dotenv jsonwebtoken bcryptjs
     - Open your new project in VSCode:
         ```bash
         code .
